@@ -9,31 +9,29 @@ export default function SetPassword() {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const hash = window.location.hash.substring(1);
-    const params = new URLSearchParams(hash);
+useEffect(() => {
+  const hash = window.location.hash.substring(1);
+  const params = new URLSearchParams(hash);
 
-    const token_hash = params.get("token_hash");
-    const type = params.get("type");
+  const access_token = params.get("access_token");
+  const refresh_token = params.get("refresh_token");
+  const type = params.get("type");
 
-    if (!token_hash || type !== "invite") {
-      setErrorMessage("Invalid invite link.");
+  if (!access_token || !refresh_token || type !== "invite") {
+    setErrorMessage("Invalid invite link.");
+    setLoading(false);
+    return;
+  }
+
+  supabase.auth
+    .setSession({ access_token, refresh_token })
+    .then(({ error, data }) => {
+      if (error || !data.session) {
+        setErrorMessage(error?.message || "Invalid invite link.");
+      }
       setLoading(false);
-      return;
-    }
-
-    supabase.auth
-      .verifyOtp({
-        type: "invite",
-        token_hash
-      })
-      .then(({ error }) => {
-        if (error) {
-          setErrorMessage(error.message);
-        }
-        setLoading(false);
-      });
-  }, []);
+    });
+}, []);
 
   const handleSetPassword = async () => {
     if (password.length < 8) {
