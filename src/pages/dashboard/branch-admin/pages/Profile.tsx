@@ -1,5 +1,6 @@
+
 const BranchAdminProfile = () => {
-  return <h1>My Profile</h1>;
+    return <div>Branch Admin Profile Page</div>
 };
 
 export default BranchAdminProfile;

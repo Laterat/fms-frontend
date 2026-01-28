@@ -1,5 +1,7 @@
+
+
 const BranchAdminDashboardHome = () => {
-  return <h1>Welcome Admin</h1>;
+    return <h1>Branch Admin Dashboard Home</h1>;
 };
 
 export default BranchAdminDashboardHome;

@@ -1,5 +1,7 @@
+
+
 const BranchAdminReports = () => {
-  return <h1>Reports</h1>;
+    return <h1>Branch Admin Reports</h1>;
 };
 
 export default BranchAdminReports;
