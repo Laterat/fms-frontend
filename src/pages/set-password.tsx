@@ -9,41 +9,43 @@ export default function SetPassword() {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
-  // Step 1: Get tokens from URL and validate
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const access_token = urlParams.get("access_token");
-    const refresh_token = urlParams.get("refresh_token");
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
 
-    if (!access_token || !refresh_token) {
+    const token_hash = params.get("token_hash");
+    const type = params.get("type");
+
+    if (!token_hash || type !== "invite") {
       setErrorMessage("Invalid invite link.");
       setLoading(false);
       return;
     }
 
-    // Step 2: Set the session
     supabase.auth
-      .setSession({ access_token, refresh_token })
-      .then(({ error, data }) => {
-        if (error || !data.session) {
-          setErrorMessage("Expired or invalid invite link.");
+      .verifyOtp({
+        type: "invite",
+        token_hash
+      })
+      .then(({ error }) => {
+        if (error) {
+          setErrorMessage(error.message);
         }
         setLoading(false);
       });
   }, []);
 
-  // Step 3: Handle password set
   const handleSetPassword = async () => {
     if (password.length < 8) {
       alert("Password must be at least 8 characters");
       return;
     }
+
     if (password !== confirmPassword) {
       alert("Passwords do not match");
       return;
     }
 
-    // Update password
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
@@ -51,9 +53,7 @@ export default function SetPassword() {
       return;
     }
 
-    // Sign out and redirect to sign-in page
     await supabase.auth.signOut();
-    alert("Password set successfully! Please sign in with your new password.");
     navigate("/signin");
   };
 
@@ -80,7 +80,10 @@ export default function SetPassword() {
         style={{ width: "100%", marginBottom: 10, padding: 8 }}
       />
 
-      <button onClick={handleSetPassword} style={{ width: "100%", padding: 10 }}>
+      <button
+        onClick={handleSetPassword}
+        style={{ width: "100%", padding: 10 }}
+      >
         Set Password
       </button>
     </div>
